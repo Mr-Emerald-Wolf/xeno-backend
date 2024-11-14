@@ -23,7 +23,7 @@ class CustomerService {
           message: `The value for ${field} must be unique.`,
         };
       }
-      
+
       return {
         error: 'Internal server error',
         message: error.message || 'Failed to create customer',
@@ -85,7 +85,7 @@ class CustomerService {
         where: { id: customerId },
         data,
       });
-      
+
       return customer;
     } catch (error: any) {
       if (error.code === 'P2025') {
@@ -94,7 +94,7 @@ class CustomerService {
           message: `Customer with ID ${customerId} not found.`,
         };
       }
-      
+
       return {
         error: 'Internal server error',
         message: error.message || 'Failed to update customer',
@@ -109,7 +109,7 @@ class CustomerService {
       await prisma.customer.delete({
         where: { id: customerId },
       });
-      
+
       return { success: true };
     } catch (error: any) {
       if (error.code === 'P2025') {
@@ -118,7 +118,7 @@ class CustomerService {
           message: `Customer with ID ${customerId} not found.`,
         };
       }
-      
+
       return {
         error: 'Internal server error',
         message: error.message || 'Failed to delete customer',

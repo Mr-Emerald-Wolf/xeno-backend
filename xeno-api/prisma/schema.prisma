@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id              Int               @id @default(autoincrement())
+  name            String            @db.VarChar(255)
+  email           String            @unique @db.VarChar(255)
+  totalSpending   Decimal           @default(0) @map("total_spending") @db.Decimal(10, 2)
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  orders          Order[]
+  OperationStatus OperationStatus[]
+
+  @@map("customers") // Specify the actual table name in the database
+}
+
+model Order {
+  id         Int      @id @default(autoincrement())
+  customerId Int      @map("customer_id")
+  orderDate  DateTime @map("order_date") @db.Date
+  revenue    Decimal  @db.Decimal(10, 2)
+  cost       Decimal  @db.Decimal(10, 2)
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  @@index([customerId])
+  @@map("orders")
+}
+
+model OperationStatus {
+  id              Int           @id @default(autoincrement())
+  dataType        DataType      @map("data_type")
+  operation       OperationType @map("operation")
+  customerId      Int           @map("customer_id")
+  status Status        @default(PENDING) @map("status")
+  errorMessage    String?       @map("error_message") @db.Text
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  customer        Customer      @relation(fields: [customerId], references: [id])
+
+  @@map("operation_status")
+}
+
+model Campaign {
+  id                Int             @id @default(autoincrement())
+  name              String          @db.VarChar(255)
+  audienceSegmentId Int             @map("audience_segment_id")
+  message           String          @db.Text
+  scheduledAt       DateTime        @map("scheduled_at")
+  sentAt            DateTime?       @map("sent_at")
+  audienceSegment   AudienceSegment @relation(fields: [audienceSegmentId], references: [id])
+
+  @@index([audienceSegmentId])
+  @@map("campaigns")
+}
+
+model AudienceSegment {
+  id           Int        @id @default(autoincrement())
+  name         String     @db.VarChar(255)
+  filters      Json // Storing filter criteria as JSON
+  audienceSize Int        @map("audience_size")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  campaigns    Campaign[]
+
+  @@map("audience_segments")
+}
+
+enum DataType {
+  customer
+  order
+}
+
+enum OperationType {
+  INSERT
+  UPDATE
+  DELETE
+}
+
+enum Status {
+  PENDING
+  COMPLETED
+  FAILED
+}
