@@ -1,7 +1,7 @@
 import { prisma } from '../../server';
 import { Order } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
-import { connection, channel } from '../config/rabbitmq'; // Import RabbitMQ connection functions
+import { channel } from '../config/rabbitmq'; // Import RabbitMQ connection functions
 
 interface ErrorResponse {
   error: string;
@@ -34,10 +34,8 @@ class OrderService {
         };
       }
 
-      // Ensure the queue exists before sending the message
       await channel.assertQueue(queue, { durable: true });
 
-      // Send the order data as a JSON message to the queue, including operation ID for reference
       channel.sendToQueue(queue, Buffer.from(JSON.stringify({
         ...data, operationId: operationRecord.id, operation: operationRecord.operation,
       })), {

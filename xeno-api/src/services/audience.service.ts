@@ -28,19 +28,23 @@ class AudienceSegmentService {
         conditions: Conditions
     ): Promise<AudienceSegmentWithSize | ErrorResponse> {
         try {
-            // Process the conditions to generate a query for matching customers
             const customerConditions = this.generateCustomerQueryConditions(conditions);
 
-            // Query the customers based on the processed conditions
+            // Fetch the matching customers based on the provided conditions
             const matchingCustomers = await prisma.customer.findMany({
                 where: customerConditions,
             });
 
-            // Create the AudienceSegment with conditions
+            // Create the new audience segment and associate matching customers
             const newSegment = await prisma.audienceSegment.create({
                 data: {
                     name,
                     conditions: JSON.stringify(conditions),
+                    customers: {
+                        connect: matchingCustomers.map((customer) => ({
+                            id: customer.id,
+                        })),
+                    },
                 },
             });
 

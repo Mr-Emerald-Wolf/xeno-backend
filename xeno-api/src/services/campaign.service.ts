@@ -14,7 +14,7 @@ class CampaignService {
 
 
             const successRate = Math.random()
-            await this.sendMessageToDeliveryAPI(campaign, successRate);
+            await this.sendMessageToDeliveryAPI(message, audienceSegmentId, successRate);
 
             return { message: 'Campaign is being processed and sent to Delivery API.' };
         } catch (error: any) {
@@ -28,7 +28,7 @@ class CampaignService {
                     audienceSegmentId,
                 },
                 include: {
-                    audienceSegment: true, 
+                    audienceSegment: true,
                 },
             });
 
@@ -40,18 +40,18 @@ class CampaignService {
 
 
     // Method to simulate sending the campaign to the Delivery API with a random status
-    private static async sendMessageToDeliveryAPI(campaign: any, successRate: Number) {
+    private static async sendMessageToDeliveryAPI(message: String, audienceSegmentId: Number, successRate: Number) {
         try {
             const deliveryApiUrl = 'http://localhost:7070/delivery';
 
             // Sending a POST request to the Delivery API with the campaign message and status
             const response = await axios.post(deliveryApiUrl, {
-                message: campaign.message,
+                message: message,
                 successRate: successRate,
-                campaignId: campaign.id,
+                audienceSegmentId: audienceSegmentId,
             });
 
-            console.log(`Campaign message sent to delivery API with status: ${status}`);
+            console.log(`Campaign message sent to delivery API with response: ${response.status}`);
         } catch (error: any) {
             console.error('Error sending campaign message to Delivery API:', error);
         }

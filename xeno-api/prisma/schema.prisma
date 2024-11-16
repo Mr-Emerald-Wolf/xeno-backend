@@ -8,15 +8,16 @@ datasource db {
 }
 
 model Customer {
-  id               Int               @id @default(autoincrement())
-  name             String            @db.VarChar(255)
-  email            String            @unique @db.VarChar(255)
-  totalSpending    Decimal           @default(0) @map("total_spending") @db.Decimal(10, 2)
-  createdAt        DateTime          @default(now()) @map("created_at")
-  updatedAt        DateTime          @updatedAt @map("updated_at")
+  id               Int                @id @default(autoincrement())
+  name             String             @db.VarChar(255)
+  email            String             @unique @db.VarChar(255)
+  totalSpending    Decimal            @default(0) @map("total_spending") @db.Decimal(10, 2)
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
   orders           Order[]
   operationStatus  OperationStatus[]
   audienceSegments AudienceSegment[]
+  communicationLog CommunicationLog[]
 
   @@map("customers")
 }
@@ -62,13 +63,29 @@ model Campaign {
 model AudienceSegment {
   id         Int        @id @default(autoincrement())
   name       String     @db.VarChar(255)
-  conditions Json 
+  conditions Json
   createdAt  DateTime   @default(now()) @map("created_at")
   updatedAt  DateTime   @updatedAt @map("updated_at")
   customers  Customer[]
   campaigns  Campaign[]
 
   @@map("audience_segments")
+}
+
+model CommunicationLog {
+  id           Int      @id @default(autoincrement())
+  customerId   Int      @map("customer_id")
+  message      String   @db.Text
+  sentAt       DateTime @map("sent_at")
+  status       Status   @map("status")
+  errorMessage String?  @map("error_message") @db.Text
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@index([customerId])
+  @@map("communication_logs")
 }
 
 enum DataType {
