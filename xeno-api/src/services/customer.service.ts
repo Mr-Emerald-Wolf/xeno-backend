@@ -1,5 +1,5 @@
 import { prisma } from '../../server';
-import { Customer } from '@prisma/client';
+import { Customer, CommunicationLog } from '@prisma/client';
 
 interface ErrorResponse {
   error: string;
@@ -122,6 +122,35 @@ class CustomerService {
       return {
         error: 'Internal server error',
         message: error.message || 'Failed to delete customer',
+      };
+    }
+  }
+
+  static async getMessagesByCustomerId(
+    customerId: number
+  ): Promise<CommunicationLog[] | { error: string; message: string }> {
+    try {
+      const messages = await prisma.communicationLog.findMany({
+        where: {
+          customerId: customerId,
+        },
+        orderBy: {
+          sentAt: 'desc',
+        },
+      });
+
+      if (messages.length === 0) {
+        return {
+          error: 'Not Found',
+          message: `No messages found for customer with ID ${customerId}`,
+        };
+      }
+
+      return messages;
+    } catch (error: any) {
+      return {
+        error: 'Internal server error',
+        message: error.message || 'Failed to retrieve communication logs',
       };
     }
   }

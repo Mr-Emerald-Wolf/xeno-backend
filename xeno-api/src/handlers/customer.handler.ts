@@ -36,3 +36,24 @@ export const getAllCustomers = async (req: Request, res: Response) => {
     return
   }
 };
+
+export const getMessages = async (req: Request, res: Response) => {
+  try {
+    const customerId = parseInt(req.params.id);
+
+    if (isNaN(customerId)) {
+      res.status(400).json({
+        error: 'Bad Request',
+        message: 'Invalid customerId provided',
+      });
+      return
+    }
+
+    const result = await CustomerService.getMessagesByCustomerId(customerId);
+    res.status(200).json(result);
+    return
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+    return
+  }
+};
