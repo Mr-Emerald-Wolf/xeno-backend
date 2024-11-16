@@ -1,8 +1,7 @@
 import express, { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import jsonErrorHandler from 'express-body-parser-error-handler';
-import customerRoutes from './src/routes/customer.routes';
-import orderRoutes from './src/routes/order.routes';
+import routes from './src/routes/routes';
 import { connectRabbitMQ, closeRabbitMQ } from './src/config/rabbitmq'; // Import RabbitMQ connection functions
 
 
@@ -19,7 +18,7 @@ async function main() {
     console.log('Connected to RabbitMQ successfully');
   } catch (error) {
     console.error('Error connecting to RabbitMQ:', error);
-    process.exit(1); 
+    process.exit(1);
   }
 
   try {
@@ -28,7 +27,7 @@ async function main() {
     console.log('Connected to Prisma successfully');
   } catch (error) {
     console.error('Error connecting to Prisma:', error);
-    await closeRabbitMQ(); 
+    await closeRabbitMQ();
     process.exit(1);
   }
 
@@ -37,9 +36,8 @@ async function main() {
   app.use(jsonErrorHandler());
 
   // Step 4: Register API routes
-  app.use('/customers', customerRoutes);
-  app.use('/orders', orderRoutes
-  )
+  app.use('/', routes);
+
 
   // Catch unregistered routes
   app.all('*', (req: Request, res: Response) => {

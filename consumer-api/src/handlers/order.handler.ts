@@ -1,4 +1,3 @@
-import { Message } from 'amqplib';
 import OrderService from '../services/order.service';
 import { Decimal } from '@prisma/client/runtime/library';
 interface data {

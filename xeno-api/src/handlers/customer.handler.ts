@@ -7,8 +7,10 @@ export const createCustomer = async (req: Request, res: Response) => {
     const customerData: CreateCustomerRequest = req.body;
     const customer = await CustomerService.createCustomer(customerData);
     res.status(201).json(customer);
+    return
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
+    return
   }
 };
 
@@ -17,8 +19,10 @@ export const getCustomerById = async (req: Request, res: Response) => {
     const customerId = parseInt(req.params.id);
     const customer = await CustomerService.getCustomerById(customerId);
     res.json(customer);
+    return
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
+    return
   }
 };
 
@@ -26,7 +30,9 @@ export const getAllCustomers = async (req: Request, res: Response) => {
   try {
     const customers = await CustomerService.getAllCustomers();
     res.json(customers);
+    return
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
+    return
   }
 };
