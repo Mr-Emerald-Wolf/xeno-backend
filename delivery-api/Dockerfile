@@ -8,6 +8,6 @@ RUN npm install
 
 COPY . /app
 
-EXPOSE 8080
+EXPOSE 7070
 
 CMD ["nodemon","server.ts"]
