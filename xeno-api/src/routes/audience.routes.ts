@@ -3,11 +3,17 @@ import {
     createAudienceSegment,
     updateAudienceSegment,
     deleteAudienceSegment,
-} from '../handlers/audience.handler'; 
+    calculateAudienceSize,
+    getAllAudienceSegments,
+} from '../handlers/audience.handler';
 
 const router = Router();
 
 router.post('/', createAudienceSegment);
+
+router.post('/size', calculateAudienceSize);
+
+router.get('/all', getAllAudienceSegments);
 
 router.put('/:id', updateAudienceSegment);
 

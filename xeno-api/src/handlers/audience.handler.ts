@@ -158,3 +158,72 @@ const validateConditions = (conditions: Conditions): string | null => {
 
     return null;
 };
+
+export const calculateAudienceSize = async (req: Request, res: Response) => {
+    const { conditions } = req.body;
+
+    if (!conditions) {
+        res.status(400).json({
+            error: 'Bad Request',
+            message: 'Conditions are required to calculate audience size.',
+        });
+        return
+    }
+
+    // Validate conditions
+    const validationError = validateConditions(conditions);
+    if (validationError) {
+        res.status(400).json({
+            error: 'Bad Request',
+            message: validationError,
+        });
+        return
+    }
+
+    try {
+        const size = await AudienceSegmentService.calculateAudienceSegmentSize(conditions);
+
+        res.status(200).json({
+            message: 'Audience size calculated successfully',
+            size,
+        });
+        return
+    } catch (error: any) {
+        res.status(500).json({
+            error: 'Internal Server Error',
+            message: error.message || 'Failed to calculate audience size.',
+        });
+        return
+    }
+};
+
+export const getAllAudienceSegments = async (req: Request, res: Response) => {
+    try {
+        const segments = await AudienceSegmentService.getAllAudienceSegments();
+
+        if ('error' in segments) {
+            res.status(500).json(segments);
+            return
+        }
+
+        if (!segments || segments.length === 0) {
+            res.status(404).json({
+                error: 'Not Found',
+                message: 'No audience segments found.',
+            });
+            return
+        }
+
+        res.status(200).json({
+            message: 'Audience segments retrieved successfully',
+            segments,
+        });
+        return
+    } catch (error: any) {
+        res.status(500).json({
+            error: 'Internal Server Error',
+            message: error.message || 'Failed to retrieve audience segments.',
+        });
+        return
+    }
+};

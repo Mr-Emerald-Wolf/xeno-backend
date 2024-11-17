@@ -5,7 +5,7 @@ import { CreateCustomerRequest } from '../types/customer.types';
 export const createCustomer = async (req: Request, res: Response) => {
   try {
     const customerData: CreateCustomerRequest = req.body;
-    const customer = await CustomerService.createCustomer(customerData);
+    const customer = await CustomerService.createCustomer(customerData.email);
     res.status(201).json(customer);
     return
   } catch (error) {

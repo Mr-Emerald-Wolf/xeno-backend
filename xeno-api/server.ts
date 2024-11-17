@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import jsonErrorHandler from 'express-body-parser-error-handler';
 import routes from './src/routes/routes';
 import { connectRabbitMQ, closeRabbitMQ } from './src/config/rabbitmq'; // Import RabbitMQ connection functions
-
+import cors from 'cors';
 
 export const prisma = new PrismaClient();
 
@@ -34,6 +34,7 @@ async function main() {
   // Step 3: Middleware setup
   app.use(express.json());
   app.use(jsonErrorHandler());
+  app.use(cors())
 
   // Step 4: Register API routes
   app.use('/', routes);

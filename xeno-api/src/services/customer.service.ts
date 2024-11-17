@@ -8,25 +8,57 @@ interface ErrorResponse {
 
 class CustomerService {
   static async createCustomer(
-    data: Omit<Customer, 'id' | 'createdAt' | 'updatedAt' | 'totalSpending'>
-  ): Promise<Customer | ErrorResponse> {
+    email: string
+  ): Promise<{
+    success: boolean;
+    data?: Omit<Customer, 'id' | 'createdAt' | 'updatedAt' | 'totalSpending'>;
+    message: string;
+    error?: string;
+  }> {
     try {
-      const customer = await prisma.customer.create({
-        data,
+      // Check if the customer already exists by email
+      const existingCustomer = await prisma.customer.findUnique({
+        where: { email },
       });
-      return customer;
-    } catch (error: any) {
-      if (error.code === 'P2002') {
-        const field = error.meta?.target;
+
+      const name = email.split('@')[0];
+
+      if (existingCustomer) {
         return {
-          error: 'Unique constraint violation',
-          message: `The value for ${field} must be unique.`,
+          success: true,
+          data: existingCustomer,
+          message: 'Customer already exists in the system.',
         };
       }
 
+      // Create a new customer with only the email
+      const customer = await prisma.customer.create({
+        data: {
+          name,
+          email, // Only providing the email
+        },
+      });
+
       return {
+        success: true,
+        data: customer, // Customer object returned here
+        message: 'Customer created successfully.',
+      };
+    } catch (error: any) {
+      // Handle unique constraint violations
+      if (error.code === 'P2002') {
+        return {
+          success: false,
+          error: 'Unique constraint violation',
+          message: 'A customer with this email already exists.',
+        };
+      }
+
+      // Handle generic errors
+      return {
+        success: false,
         error: 'Internal server error',
-        message: error.message || 'Failed to create customer',
+        message: error.message || 'Failed to create customer.',
       };
     }
   }

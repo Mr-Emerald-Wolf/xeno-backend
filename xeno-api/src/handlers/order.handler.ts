@@ -5,6 +5,7 @@ import { CreateOrderRequest } from '../types/order.types';
 export const createOrder = async (req: Request, res: Response) => {
   try {
     const orderData: CreateOrderRequest = req.body;
+    orderData
     const newOrderData = {
       ...orderData,
       orderDate: new Date(orderData.orderDate), // Convert orderDate to Date type

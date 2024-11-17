@@ -6,17 +6,21 @@ export const createCampaign = async (req: Request, res: Response) => {
 
     if (!audienceSegmentId || !message) {
         res.status(400).json({ error: 'Audience Segment ID and Message are required.' });
+        return
     }
 
     if (!message.includes('[Name]')) {
         res.status(400).json({ error: 'Message must contain the placeholder "[Name]".' });
+        return
     }
 
     try {
         const result = await CampaignService.createAndSendCampaign(audienceSegmentId, message);
         res.status(200).json(result);
+        return
     } catch (error: any) {
         res.status(500).json({ error: error.message || 'Internal server error' });
+        return
     }
 };
 

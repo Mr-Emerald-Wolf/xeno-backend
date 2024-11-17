@@ -1,3 +1,4 @@
+import { AudienceSegment } from '@prisma/client';
 import { prisma } from '../../server';
 
 interface ErrorResponse {
@@ -123,6 +124,45 @@ class AudienceSegmentService {
         }
     }
 
+    static async getAllAudienceSegments(): Promise<AudienceSegment[] | ErrorResponse> {
+        try {
+            const segments = await prisma.audienceSegment.findMany({
+                include: {
+                    customers: true,
+                },
+            });
+            return segments;
+        } catch (error: any) {
+            return {
+                error: 'Internal server error',
+                message: error.message || 'Failed to fetch audience segments',
+            };
+        }
+    }
+
+    static async calculateAudienceSegmentSize(
+        conditions: Conditions
+    ): Promise<{ audienceSize: number; matchingCustomers: any[] } | ErrorResponse> {
+        try {
+            const customerConditions = this.generateCustomerQueryConditions(conditions);
+
+            // Fetch the matching customers based on the provided conditions
+            const matchingCustomers = await prisma.customer.findMany({
+                where: customerConditions,
+            });
+
+            return {
+                audienceSize: matchingCustomers.length,
+                matchingCustomers,
+            };
+        } catch (error: any) {
+            return {
+                error: 'Internal server error',
+                message: error.message || 'Failed to calculate audience segment size',
+            };
+        }
+    }
+
     private static generateCustomerQueryConditions(conditions: Conditions): object {
         let queryConditions: any = {};
 
@@ -167,3 +207,4 @@ class AudienceSegmentService {
 }
 
 export default AudienceSegmentService;
+
