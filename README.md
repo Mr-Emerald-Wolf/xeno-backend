@@ -131,7 +131,7 @@ sequenceDiagram
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/xeno-mini-crm.git
+   git clone https://github.com/mr-emerald-wolf/xeno-backend.git
    cd xeno-mini-crm
    ```
 

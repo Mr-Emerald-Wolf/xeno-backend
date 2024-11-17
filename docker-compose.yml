@@ -30,44 +30,44 @@ services:
       RABBITMQ_DEFAULT_PASS: password
       RABBITMQ_DEFAULT_VHOST: /
 
-  consumer-api:
-    build:
-      context: ./consumer-api
-      dockerfile: Dockerfile
-    container_name: consumer-api
-    networks:
-      - xeno-network
-    depends_on:
-      - rabbitmq
-      - mysql
+  # consumer-api:
+  #   build:
+  #     context: ./consumer-api
+  #     dockerfile: Dockerfile
+  #   container_name: consumer-api
+  #   networks:
+  #     - xeno-network
+  #   depends_on:
+  #     - rabbitmq
+  #     - mysql
 
-  delivery-api:
-    build:
-      context: ./delivery-api
-      dockerfile: Dockerfile
-    container_name: delivery-api
-    ports:
-      - "7070:7070" 
-    networks:
-      - xeno-network
-    depends_on:
-      - rabbitmq
-      - mysql
+  # delivery-api:
+  #   build:
+  #     context: ./delivery-api
+  #     dockerfile: Dockerfile
+  #   container_name: delivery-api
+  #   ports:
+  #     - "7070:7070" 
+  #   networks:
+  #     - xeno-network
+  #   depends_on:
+  #     - rabbitmq
+  #     - mysql
 
 
-  xeno-api:
-    build:
-      context: ./xeno-api
-      dockerfile: Dockerfile
-    container_name: xeno-api
-    ports:
-      - "8080:8080" 
-    networks:
-      - xeno-network
-    depends_on:
-      - rabbitmq
-      - mysql
-    command: bash -c "npx prisma migrate "
+  # xeno-api:
+  #   build:
+  #     context: ./xeno-api
+  #     dockerfile: Dockerfile
+  #   container_name: xeno-api
+  #   ports:
+  #     - "8080:8080" 
+  #   networks:
+  #     - xeno-network
+  #   depends_on:
+  #     - rabbitmq
+  #     - mysql
+  #   command: bash -c "npx prisma migrate "
 
 
 volumes:
