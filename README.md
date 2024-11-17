@@ -59,7 +59,67 @@ The backend is split into three services:
 - Updates the status of messages in the MySQL database.
 
 ---
+## System Architecture
 
+The system follows an event-driven architecture with direct database access for read operations. Below is a sequence diagram showing the main flows:
+
+```mermaid
+sequenceDiagram
+    participant Frontend
+    participant Xeno API
+    participant RabbitMQ
+    participant Delivery API
+    participant Consumer API
+    participant Database
+
+    %% GET Request Flow
+    Frontend->>Xeno API: GET /orders (Fetch Data)
+    Xeno API->>Database: Direct Database Query
+    Database-->>Xeno API: Return Data
+    Xeno API-->>Frontend: Return Response
+
+    %% Order Creation Flow
+    Frontend->>Xeno API: POST /orders (Create Order)
+    Xeno API->>Xeno API: Validate Order Data
+    Xeno API->>RabbitMQ: Publish Order Payload
+    RabbitMQ-->>Consumer API: Consume Order Message
+    Consumer API->>Database: Store Order Data
+    Consumer API-->>RabbitMQ: Acknowledge Message
+    Xeno API-->>Frontend: Return Success Response
+
+    %% Campaign Creation & Message Delivery Flow
+    Frontend->>Xeno API: POST /campaigns (Create Campaign)
+    Xeno API->>Database: Store Campaign Data
+    Xeno API->>Delivery API: Request Message Sending
+    Delivery API->>Delivery API: Process Messages
+    Delivery API->>RabbitMQ: Publish Delivery Status
+    RabbitMQ-->>Consumer API: Consume Delivery Status
+    Consumer API->>Database: Update Message Status
+    Consumer API-->>RabbitMQ: Acknowledge Message
+    Delivery API-->>Xeno API: Return Delivery Status
+    Xeno API-->>Frontend: Return Campaign Status
+```
+
+### Flow Explanation
+
+1. **Data Retrieval (GET Requests)**
+   - Frontend requests data from Xeno API
+   - Xeno API directly queries the database
+   - Data is returned to the frontend
+
+2. **Order Creation (POST Requests)**
+   - Frontend submits order data
+   - Xeno API validates and publishes to RabbitMQ
+   - Consumer API processes the message and stores in database
+   - Asynchronous confirmation flow
+
+3. **Campaign Management**
+   - Frontend initiates campaign creation
+   - Xeno API coordinates with Delivery API for message sending
+   - Status updates flow through RabbitMQ to Consumer API
+   - Database is updated with delivery status
+
+---
 ## Installation
 
 ### Prerequisites
